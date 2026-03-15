@@ -1,0 +1,520 @@
+<!doctype html>
+
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rent Rescue — Recover Locked SOL</title>
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg2: #0b1730;
+      --card: rgba(255,255,255,0.06);
+      --card-strong: rgba(255,255,255,0.1);
+      --text: #eef4ff;
+      --muted: #9eb0cf;
+      --line: rgba(255,255,255,0.12);
+      --accent: #7c3aed;
+      --accent2: #22d3ee;
+      --accent3: #60a5fa;
+      --danger: #fecaca;
+      --danger-bg: rgba(127,29,29,0.25);
+      --ok: #bbf7d0;
+      --ok-bg: rgba(20,83,45,0.3);
+      --warn: #fde68a;
+      --warn-bg: rgba(133,77,14,0.28);
+      --badge: rgba(255,255,255,0.08);
+      --shadow: 0 18px 60px rgba(2, 8, 23, 0.4);
+      --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(124,58,237,0.22), transparent 30%),
+        radial-gradient(circle at top right, rgba(34,211,238,0.16), transparent 28%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1220px;
+      margin: 0 auto;
+      padding: 26px 18px 48px;
+    }
+    .hero {
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      padding: 28px;
+      background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(34,211,238,0.08));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items: center;
+    }
+    .hero-kicker {
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--line);
+      color: #dbeafe;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    .hero h1 { font-size: 48px; line-height: 1; margin: 0 0 12px; }
+    .hero p { margin: 0; }
+    .hero-copy { max-width: 700px; }
+    .hero-points {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .hero-point {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.05);
+      border-radius: 18px;
+      padding: 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .hero-side {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.06);
+      border-radius: 24px;
+      padding: 18px;
+    }
+    .top, .bottom {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .top { grid-template-columns: 1.35fr 0.65fr; }
+    .bottom { grid-template-columns: 1fr 340px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+    .card-header, .card-body { padding: 22px; }
+    .card-body.compact { padding-top: 0; }
+    .title-row { display: flex; gap: 14px; align-items: center; margin-bottom: 18px; }
+    .logo {
+      width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center;
+      color: white; background: linear-gradient(135deg, var(--accent), var(--accent2)); font-size: 24px;
+      box-shadow: 0 10px 28px rgba(124,58,237,0.35);
+    }
+    h1, h2, h3, p { margin: 0; }
+    h2 { font-size: 20px; margin-bottom: 6px; }
+    h3 { font-size: 15px; }
+    .muted { color: var(--muted); }
+    .small { font-size: 14px; }
+    .tiny { font-size: 12px; }
+    .stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px;
+    }
+    .stat {
+      border: 1px solid var(--line); border-radius: 20px; padding: 16px;
+      background: rgba(255,255,255,0.05);
+    }
+    .stat .label { font-size: 13px; color: var(--muted); }
+    .stat .value { font-size: 20px; font-weight: 700; margin-top: 6px; word-break: break-word; }
+    .wallet-row, .actions {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;
+    }
+    button, select, input[type="text"] {
+      border-radius: 16px; font-size: 14px;
+    }
+    button {
+      border: 0; padding: 12px 16px; font-weight: 700; cursor: pointer;
+      transition: transform .08s ease, opacity .15s ease, background .2s ease, box-shadow .2s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: white;
+      box-shadow: 0 10px 24px rgba(124,58,237,0.28);
+    }
+    .btn-outline {
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .btn-danger { background: linear-gradient(135deg, #1d4ed8, #06b6d4); color: white; }
+    select, input[type="text"] {
+      border: 1px solid var(--line); padding: 12px 14px; background: rgba(255,255,255,0.05); color: var(--text);
+    }
+    option { color: #111827; }
+    .grow { flex: 1; min-width: 180px; }
+    .notice, .warning, .success, .rpc-note {
+      border-radius: 18px; padding: 14px; font-size: 14px;
+    }
+    .notice { background: rgba(37,99,235,0.18); border: 1px solid rgba(96,165,250,0.35); color: #dbeafe; }
+    .warning { background: var(--warn-bg); border: 1px solid rgba(245,158,11,0.35); color: var(--warn); }
+    .success { background: var(--ok-bg); border: 1px solid rgba(34,197,94,0.35); color: var(--ok); display: none; }
+    .rpc-note { background: rgba(255,255,255,0.04); border: 1px solid var(--line); color: var(--muted); }
+    .progress-wrap { margin-bottom: 16px; }
+    .progress-line { width: 100%; height: 11px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .2s ease; }
+    .step, .asset, .info-row, .tx-row {
+      border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,0.05); padding: 14px;
+    }
+    .step + .step, .asset + .asset, .info-row + .info-row, .tx-row + .tx-row { margin-top: 10px; }
+    .search-row {
+      display: flex; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 14px;
+    }
+    .asset {
+      display: flex; justify-content: space-between; align-items: center; gap: 14px;
+    }
+    .asset-left { display: flex; gap: 12px; align-items: flex-start; }
+    .asset-right { text-align: right; }
+    .badge {
+      display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 10px; margin-top: 6px; margin-right: 8px;
+      font-size: 12px; font-weight: 700; background: var(--badge);
+    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .tx-list { margin-top: 12px; }
+    a { color: #67e8f9; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .hidden { display: none; }
+    @media (max-width: 980px) {
+      .hero-grid, .top, .bottom, .stats, .hero-points { grid-template-columns: 1fr; }
+      .search-row, .asset { flex-direction: column; align-items: stretch; }
+      .asset-right { text-align: left; }
+      .hero h1 { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="hero-kicker">Solana rent recovery</div>
+          <h1>Recover locked SOL from empty token accounts</h1>
+          <p class="muted small">Connect Phantom or Solflare, scan eligible SPL accounts, and close empty accounts with clear wallet approval and explorer links for every transaction.</p>
+          <div class="hero-points">
+            <div class="hero-point"><strong style="display:block;color:var(--text);margin-bottom:6px">Fast scan</strong>Reads Token Program and Token-2022 accounts directly from the connected wallet.</div>
+            <div class="hero-point"><strong style="display:block;color:var(--text);margin-bottom:6px">Transparent signing</strong>Every close instruction is bundled into visible wallet transactions.</div>
+            <div class="hero-point"><strong style="display:block;color:var(--text);margin-bottom:6px">Wallet-first UX</strong>Built for mobile and desktop with a simpler, more trustworthy interface.</div>
+          </div>
+        </div>
+        <div class="hero-side">
+          <div class="tiny muted" style="margin-bottom:8px">How it works</div>
+          <div class="info-row">
+            <div><strong>1. Connect wallet</strong></div>
+            <div class="small muted" style="margin-top:6px">Use Phantom or Solflare to connect securely in your browser.</div>
+          </div>
+          <div class="info-row">
+            <div><strong>2. Scan eligible accounts</strong></div>
+            <div class="small muted" style="margin-top:6px">Only SPL token accounts with zero balance are shown for review.</div>
+          </div>
+          <div class="info-row">
+            <div><strong>3. Close and reclaim rent</strong></div>
+            <div class="small muted" style="margin-top:6px">Approve the transactions and recover the SOL locked in rent.</div>
+          </div>
+        </div>
+      </div>
+    </section><div class="top">
+  <section class="card">
+    <div class="card-body">
+      <div class="title-row">
+        <div class="logo">◎</div>
+        <div>
+          <h1>Rent Rescue</h1>
+          <p class="muted small">Connect Phantom or Solflare, scan eligible token accounts, and reclaim locked SOL from empty SPL accounts.</p>
+        </div>
+      </div>
+
+      <div class="wallet-row">
+        <select id="walletSelect">
+          <option value="phantom">Phantom</option>
+          <option value="solflare">Solflare</option>
+        </select>
+        <select id="networkSelect">
+          <option value="mainnet-beta">Mainnet Beta</option>
+          <option value="devnet">Devnet</option>
+        </select>
+        <input id="rpcInput" class="grow" type="text" placeholder="RPC opcional (deixe vazio para usar o padrão da rede)" />
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="label">Carteira</div>
+          <div class="value" id="walletState">Desconectada</div>
+        </div>
+        <div class="stat">
+          <div class="label">Endereço</div>
+          <div class="value mono tiny" id="walletAddress">—</div>
+        </div>
+        <div class="stat">
+          <div class="label">Contas vazias</div>
+          <div class="value" id="eligibleCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="label">SOL estimado</div>
+          <div class="value" id="estimatedSol">◎ 0.000000</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="connectBtn">Conectar carteira</button>
+        <button class="btn-outline" id="disconnectBtn" disabled>Desconectar</button>
+        <button class="btn-outline" id="scanBtn" disabled>Ler token accounts</button>
+        <button class="btn-outline" id="selectAllBtn" disabled>Selecionar tudo</button>
+        <button class="btn-outline" id="clearSelectionBtn" disabled>Limpar seleção</button>
+        <button class="btn-danger" id="closeBtn" disabled>Fechar contas selecionadas</button>
+      </div>
+
+      <div class="notice" style="margin-bottom:12px">
+        Review the accounts before signing. Only zero-balance SPL token accounts are eligible for close account recovery.
+      </div>
+      <div class="warning">
+        This app never needs your seed phrase. Connection and transaction approval happen inside your wallet only.
+      </div>
+      <div class="success" id="successBox" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <aside class="card">
+    <div class="card-header">
+      <h2>Status</h2>
+      <p class="muted small">Fluxo real: conectar → ler → fechar</p>
+    </div>
+    <div class="card-body compact">
+      <div class="progress-wrap">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px" class="small">
+          <span>Progresso</span>
+          <span id="progressText">0%</span>
+        </div>
+        <div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
+      </div>
+
+      <div class="step">
+        <h3>1. Conectar Phantom ou Solflare</h3>
+        <p class="muted small">Detecta provider injetado e solicita permissão da carteira escolhida.</p>
+      </div>
+      <div class="step">
+        <h3>2. Buscar token accounts</h3>
+        <p class="muted small">Consulta contas do Token Program e Token-2022 e filtra somente saldo zero.</p>
+      </div>
+      <div class="step">
+        <h3>3. Assinar e enviar</h3>
+        <p class="muted small">Monta transações reais com <span class="mono">CloseAccount</span> e envia em lotes.</p>
+      </div>
+
+      <div class="rpc-note" style="margin-top:12px">
+        <strong>RPC atual:</strong>
+        <div class="mono tiny" id="rpcLabel" style="margin-top:6px">—</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="bottom">
+  <section class="card">
+    <div class="card-header">
+      <div class="search-row">
+        <div>
+          <h2>Contas elegíveis para fechamento</h2>
+          <p class="muted small">Só aparecem contas SPL token com saldo zero. O valor estimado é calculado a partir dos lamports presos em cada conta.</p>
+        </div>
+        <input id="searchInput" type="text" placeholder="Buscar por mint, programa ou endereço" />
+      </div>
+    </div>
+    <div class="card-body compact">
+      <div id="assetList"></div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="card" style="margin-bottom:18px">
+      <div class="card-header">
+        <h2>Log</h2>
+      </div>
+      <div class="card-body compact">
+        <div class="info-row" id="statusLog">Aguardando conexão.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2>Transações</h2>
+      </div>
+      <div class="card-body compact">
+        <div id="txList" class="tx-list"></div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+  </div>  <script type="module">
+    import {
+      Connection,
+      PublicKey,
+      Transaction,
+      clusterApiUrl,
+      LAMPORTS_PER_SOL
+    } from 'https://esm.sh/@solana/web3.js@1.98.4';
+
+    import {
+      TOKEN_PROGRAM_ID,
+      TOKEN_2022_PROGRAM_ID,
+      createCloseAccountInstruction
+    } from 'https://esm.sh/@solana/spl-token@0.4.14';
+
+    const state = {
+      provider: null,
+      walletName: 'phantom',
+      network: 'mainnet-beta',
+      connection: null,
+      publicKey: null,
+      query: '',
+      accounts: [],
+      txs: [],
+      loading: false,
+      scanned: false,
+      closing: false,
+    };
+
+    const el = {
+      walletSelect: document.getElementById('walletSelect'),
+      networkSelect: document.getElementById('networkSelect'),
+      rpcInput: document.getElementById('rpcInput'),
+      connectBtn: document.getElementById('connectBtn'),
+      disconnectBtn: document.getElementById('disconnectBtn'),
+      scanBtn: document.getElementById('scanBtn'),
+      selectAllBtn: document.getElementById('selectAllBtn'),
+      clearSelectionBtn: document.getElementById('clearSelectionBtn'),
+      closeBtn: document.getElementById('closeBtn'),
+      walletState: document.getElementById('walletState'),
+      walletAddress: document.getElementById('walletAddress'),
+      eligibleCount: document.getElementById('eligibleCount'),
+      estimatedSol: document.getElementById('estimatedSol'),
+      searchInput: document.getElementById('searchInput'),
+      assetList: document.getElementById('assetList'),
+      statusLog: document.getElementById('statusLog'),
+      txList: document.getElementById('txList'),
+      progressFill: document.getElementById('progressFill'),
+      progressText: document.getElementById('progressText'),
+      successBox: document.getElementById('successBox'),
+      rpcLabel: document.getElementById('rpcLabel'),
+    };
+
+    function setLog(message) {
+      el.statusLog.textContent = message;
+    }
+
+    function shortAddress(value) {
+      if (!value) return '—';
+      const s = String(value);
+      return s.length > 12 ? `${s.slice(0, 6)}…${s.slice(-6)}` : s;
+    }
+
+    function getRpcUrl() {
+      const custom = el.rpcInput.value.trim();
+      if (custom) return custom;
+      return clusterApiUrl(state.network);
+    }
+
+    function refreshConnection() {
+      const rpc = getRpcUrl();
+      state.connection = new Connection(rpc, 'confirmed');
+      el.rpcLabel.textContent = rpc;
+    }
+
+    function detectProvider(walletName) {
+      if (walletName === 'phantom') {
+        const provider = window.phantom?.solana || window.solana;
+        if (provider?.isPhantom) return provider;
+        return null;
+      }
+      if (walletName === 'solflare') {
+        const provider = window.solflare;
+        if (provider?.isSolflare) return provider;
+        return null;
+      }
+      return null;
+    }
+
+    function getProgress() {
+      if (!state.publicKey) return 0;
+      if (!state.scanned) return 50;
+      return 100;
+    }
+
+    function selectedAccounts() {
+      return state.accounts.filter((a) => a.selected);
+    }
+
+    function filteredAccounts() {
+      const q = state.query.trim().toLowerCase();
+      return state.accounts.filter((a) => {
+        if (!q) return true;
+        return [a.address, a.mint, a.programLabel].some((part) => String(part).toLowerCase().includes(q));
+      });
+    }
+
+    function updateButtons() {
+      const hasProvider = !!state.publicKey;
+      const selected = selectedAccounts();
+      el.disconnectBtn.disabled = !hasProvider;
+      el.scanBtn.disabled = !hasProvider || state.loading || state.closing;
+      el.selectAllBtn.disabled = !state.scanned || !state.accounts.length || state.closing;
+      el.clearSelectionBtn.disabled = !state.scanned || !state.accounts.length || state.closing;
+      el.closeBtn.disabled = !hasProvider || !state.scanned || !selected.length || state.loading || state.closing;
+      el.progressFill.style.width = `${getProgress()}%`;
+      el.progressText.textContent = `${getProgress()}%`;
+    }
+
+    function renderTxs() {
+      el.txList.innerHTML = '';
+      if (!state.txs.length) {
+        const row = document.createElement('div');
+        row.className = 'tx-row muted small';
+        row.textContent = 'Nenhuma transação enviada ainda.';
+        el.txList.appendChild(row);
+        return;
+      }
+      for (const tx of state.txs) {
+        const row = document.createElement('div');
+        row.className = 'tx-row';
+        const explorerCluster = state.network === 'mainnet-beta' ? '' : `?cluster=${encodeURIComponent(state.network)}`;
+        row.innerHTML = `
+          <div><strong>Lote ${tx.batch}</strong></div>
+          <div class="tiny muted mono" style="margin-top:6px">${tx.signature}</div>
+          <div style="margin-top:8px"><a href="https://explorer.solana.com/tx/${tx.signature}${explorerCluster}" target="_blank" rel="noreferrer">Abrir no Solana Explorer</a></div>
+        `;
+        el.txList.appendChild(row);
+      }
+    }
+
+    function renderAccounts() {
+      const items = filteredAccounts();
+      el.assetList.innerHTML = '';
+
+      if (!state.scanned) {
+        const row = document.createElement('div');
+        row.className = 'asset muted small';
+        row.innerHTML = '<div>Conecte a carteira e clique em <strong>Ler token accounts</strong>.</div>';
+        el.assetList.appendChild(row);
+        return;
+      }
+
+      if (!items.length) {
+        const row = document.createElement('div');
+        row.className = 'asset muted small';
+        row.innerHTML = '<div>Nenhuma conta vazia encontrada para o filtro atual.</div>';
