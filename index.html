@@ -394,7 +394,7 @@
       walletSelect: document.getElementById('walletSelect'),
       networkSelect: document.getElementById('networkSelect'),
       rpcInput: document.getElementById('rpcInput'),
-      connectBtn: document.getElementById('connectBtn'),
+      connectBtn: document.getElementById("connectBtn").addEventListener("click", connectWallet);
       disconnectBtn: document.getElementById('disconnectBtn'),
       scanBtn: document.getElementById('scanBtn'),
       selectAllBtn: document.getElementById('selectAllBtn'),
