@@ -1,646 +1,356 @@
 <!doctype html>
+
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rent Rescue — Recover Locked SOL</title>
-  <meta name="description" content="Connect Phantom or Solflare, scan eligible token accounts, and reclaim locked SOL from empty SPL accounts." />
+  <title>Recuperar rent na Solana</title>
   <style>
-    :root {
-      --bg: #07111f;
-      --bg2: #0b1730;
-      --card: rgba(255,255,255,0.06);
-      --text: #eef4ff;
-      --muted: #9eb0cf;
-      --line: rgba(255,255,255,0.12);
-      --accent: #7c3aed;
-      --accent2: #22d3ee;
-      --ok: #bbf7d0;
-      --ok-bg: rgba(20,83,45,0.3);
-      --warn: #fde68a;
-      --warn-bg: rgba(133,77,14,0.28);
-      --badge: rgba(255,255,255,0.08);
-      --shadow: 0 18px 60px rgba(2, 8, 23, 0.4);
-      --radius: 24px;
-    }
-
     * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(124,58,237,0.22), transparent 30%),
-        radial-gradient(circle at top right, rgba(34,211,238,0.16), transparent 28%),
-        linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    .container {
-      max-width: 1220px;
-      margin: 0 auto;
-      padding: 26px 18px 48px;
-    }
-
-    .hero {
-      margin-bottom: 18px;
-      border: 1px solid var(--line);
-      border-radius: 30px;
-      padding: 28px;
-      background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(34,211,238,0.08));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-    }
-
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.2fr 0.8fr;
-      gap: 18px;
-      align-items: center;
-    }
-
-    .hero-kicker {
-      display: inline-flex;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid var(--line);
-      color: #dbeafe;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-
-    .hero h1 {
-      font-size: 48px;
-      line-height: 1;
-      margin: 0 0 12px;
-    }
-
-    .hero p { margin: 0; }
-
-    .hero-copy { max-width: 700px; }
-
-    .hero-points {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 18px;
-    }
-
-    .hero-point {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.05);
-      border-radius: 18px;
-      padding: 14px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .hero-side {
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,0.06);
-      border-radius: 24px;
-      padding: 18px;
-    }
-
-    .top, .bottom {
-      display: grid;
-      gap: 18px;
-      margin-bottom: 18px;
-    }
-
-    .top { grid-template-columns: 1.35fr 0.65fr; }
-    .bottom { grid-template-columns: 1fr 340px; }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-    }
-
-    .card-header, .card-body { padding: 22px; }
-    .card-body.compact { padding-top: 0; }
-
-    .title-row {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-      margin-bottom: 18px;
-    }
-
-    .logo {
-      width: 56px;
-      height: 56px;
-      border-radius: 18px;
-      display: grid;
-      place-items: center;
-      color: white;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      font-size: 24px;
-      box-shadow: 0 10px 28px rgba(124,58,237,0.35);
-    }
-
-    h1, h2, h3, p { margin: 0; }
-    h2 { font-size: 20px; margin-bottom: 6px; }
-    h3 { font-size: 15px; }
-
-    .muted { color: var(--muted); }
-    .small { font-size: 14px; }
-    .tiny { font-size: 12px; }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-
-    .stat {
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 16px;
-      background: rgba(255,255,255,0.05);
-    }
-
-    .stat .label { font-size: 13px; color: var(--muted); }
-    .stat .value {
-      font-size: 20px;
-      font-weight: 700;
-      margin-top: 6px;
-      word-break: break-word;
-    }
-
-    .wallet-row, .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    button, select, input[type="text"] {
-      border-radius: 16px;
-      font-size: 14px;
-    }
-
-    button {
-      border: 0;
-      padding: 12px 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform .08s ease, opacity .15s ease, background .2s ease, box-shadow .2s ease;
-    }
-
-    button:hover { transform: translateY(-1px); }
-    button:disabled { opacity: .55; cursor: not-allowed; transform: none; }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: white;
-      box-shadow: 0 10px 24px rgba(124,58,237,0.28);
-    }
-
-    .btn-outline {
-      background: rgba(255,255,255,0.04);
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-
-    .btn-danger {
-      background: linear-gradient(135deg, #1d4ed8, #06b6d4);
-      color: white;
-    }
-
-    select, input[type="text"] {
-      border: 1px solid var(--line);
-      padding: 12px 14px;
-      background: rgba(255,255,255,0.05);
-      color: var(--text);
-    }
-
-    option { color: #111827; }
-    .grow { flex: 1; min-width: 180px; }
-
-    .notice, .warning, .success, .rpc-note {
-      border-radius: 18px;
-      padding: 14px;
-      font-size: 14px;
-    }
-
-    .notice {
-      background: rgba(37,99,235,0.18);
-      border: 1px solid rgba(96,165,250,0.35);
-      color: #dbeafe;
-    }
-
-    .warning {
-      background: var(--warn-bg);
-      border: 1px solid rgba(245,158,11,0.35);
-      color: var(--warn);
-    }
-
-    .success {
-      background: var(--ok-bg);
-      border: 1px solid rgba(34,197,94,0.35);
-      color: var(--ok);
-      display: none;
-    }
-
-    .rpc-note {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--line);
-      color: var(--muted);
-    }
-
-    .progress-wrap { margin-bottom: 16px; }
-
-    .progress-line {
-      width: 100%;
-      height: 11px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
-      transition: width .2s ease;
-    }
-
-    .step, .asset, .info-row, .tx-row {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(255,255,255,0.05);
-      padding: 14px;
-    }
-
-    .step + .step, .asset + .asset, .info-row + .info-row, .tx-row + .tx-row {
-      margin-top: 10px;
-    }
-
-    .search-row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .asset {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .asset-left {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .asset-right { text-align: right; }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      padding: 4px 10px;
-      margin-top: 6px;
-      margin-right: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      background: var(--badge);
-    }
-
-    .mono {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    .tx-list { margin-top: 12px; }
-
-    a {
-      color: #67e8f9;
-      text-decoration: none;
-    }
-
-    a:hover { text-decoration: underline; }
-
-    @media (max-width: 980px) {
-      .hero-grid, .top, .bottom, .stats, .hero-points { grid-template-columns: 1fr; }
-      .search-row, .asset { flex-direction: column; align-items: stretch; }
-      .asset-right { text-align: left; }
-      .hero h1 { font-size: 36px; }
-    }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f8fafc; color: #0f172a; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 24px; }
+    .hero { margin-bottom: 18px; }
+    h1 { margin: 0 0 8px; font-size: 30px; }
+    p { color: #475569; line-height: 1.5; }
+    .card { background: #fff; border-radius: 18px; padding: 20px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); margin-bottom: 18px; }
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    label { display: block; font-size: 14px; margin-bottom: 6px; color: #334155; font-weight: 600; }
+    input { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 12px; font-size: 15px; outline: none; }
+    input:focus { border-color: #2563eb; }
+    button { border: 0; background: #2563eb; color: white; border-radius: 12px; padding: 12px 18px; font-size: 15px; cursor: pointer; font-weight: 700; }
+    button.secondary { background: #0f172a; }
+    button:disabled { opacity: 0.7; cursor: not-allowed; }
+    .muted { color: #64748b; font-size: 13px; }
+    .error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 14px; border-radius: 12px; }
+    .ok { background: #ecfccb; border: 1px solid #bef264; color: #3f6212; padding: 12px 14px; border-radius: 12px; }
+    .warn { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; padding: 12px 14px; border-radius: 12px; }
+    .stat { font-size: 30px; font-weight: 800; margin-bottom: 8px; }
+    .pill { display: inline-block; border-radius: 999px; padding: 8px 12px; font-size: 12px; font-weight: 700; background: #e2e8f0; color: #334155; }
+    .account { border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; display: grid; gap: 6px; }
+    code { word-break: break-all; }
+    .toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .small-btn { padding: 10px 12px; font-size: 13px; }
+    @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <section class="hero">
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <div class="hero-kicker">Solana rent recovery</div>
-          <h1>Recover locked SOL from empty token accounts</h1>
-          <p class="muted small">Connect Phantom or Solflare, scan eligible SPL accounts, and close empty accounts with clear wallet approval and explorer links for every transaction.</p>
-          <div class="hero-points">
-            <div class="hero-point"><strong style="display:block;color:var(--text);margin-bottom:6px">Fast scan</strong>Reads Token Program and Token-2022 accounts directly from the connected wallet.</div>
-            <div class="hero-point"><strong style="display:block;color:var(--text);margin-bottom:6px">Transparent signing</strong>Every close instruction is bundled into visible wallet transactions.</div>
-            <div class="hero-point"><strong style="display:block;color:var(--text);margin-bottom:6px">Wallet-first UX</strong>Built for mobile and desktop with a simpler, more trustworthy interface.</div>
-          </div>
-        </div>
-        <div class="hero-side">
-          <div class="tiny muted" style="margin-bottom:8px">How it works</div>
-          <div class="info-row">
-            <div><strong>1. Connect wallet</strong></div>
-            <div class="small muted" style="margin-top:6px">Use Phantom or Solflare to connect securely in your browser.</div>
-          </div>
-          <div class="info-row">
-            <div><strong>2. Scan eligible accounts</strong></div>
-            <div class="small muted" style="margin-top:6px">Only SPL token accounts with zero balance are shown for review.</div>
-          </div>
-          <div class="info-row">
-            <div><strong>3. Close and reclaim rent</strong></div>
-            <div class="small muted" style="margin-top:6px">Approve the transactions and recover the SOL locked in rent.</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="top">
-      <section class="card">
-        <div class="card-body">
-          <div class="title-row">
-            <div class="logo">◎</div>
-            <div>
-              <h2 style="margin:0">Rent Rescue</h2>
-              <p class="muted small">Connect Phantom or Solflare, scan eligible token accounts, and reclaim locked SOL from empty SPL accounts.</p>
-            </div>
-          </div>
-
-          <div class="wallet-row">
-            <select id="walletSelect">
-              <option value="phantom">Phantom</option>
-              <option value="solflare">Solflare</option>
-            </select>
-
-            <select id="networkSelect">
-              <option value="mainnet-beta">Mainnet Beta</option>
-              <option value="devnet">Devnet</option>
-            </select>
-
-            <input id="rpcInput" class="grow" type="text" placeholder="RPC opcional (deixe vazio para usar o padrão da rede)" />
-          </div>
-
-          <div class="stats">
-            <div class="stat">
-              <div class="label">Carteira</div>
-              <div class="value" id="walletState">Desconectada</div>
-            </div>
-            <div class="stat">
-              <div class="label">Endereço</div>
-              <div class="value mono tiny" id="walletAddress">—</div>
-            </div>
-            <div class="stat">
-              <div class="label">Contas vazias</div>
-              <div class="value" id="eligibleCount">0</div>
-            </div>
-            <div class="stat">
-              <div class="label">SOL estimado</div>
-              <div class="value" id="estimatedSol">◎ 0.000000</div>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button class="btn-primary" id="connectBtn" type="button">Conectar carteira</button>
-            <button class="btn-outline" id="disconnectBtn" type="button" disabled>Desconectar</button>
-            <button class="btn-outline" id="scanBtn" type="button" disabled>Ler token accounts</button>
-            <button class="btn-outline" id="selectAllBtn" type="button" disabled>Selecionar tudo</button>
-            <button class="btn-outline" id="clearSelectionBtn" type="button" disabled>Limpar seleção</button>
-            <button class="btn-danger" id="closeBtn" type="button" disabled>Fechar contas selecionadas</button>
-          </div>
-
-          <div class="notice" style="margin-bottom:12px">
-            Review the accounts before signing. Only zero-balance SPL token accounts are eligible for close account recovery.
-          </div>
-
-          <div class="warning">
-            This app never needs your seed phrase. Connection and transaction approval happen inside your wallet only.
-          </div>
-
-          <div class="success" id="successBox" style="margin-top:12px"></div>
-        </div>
-      </section>
-
-      <aside class="card">
-        <div class="card-header">
-          <h2>Status</h2>
-          <p class="muted small">Fluxo real: conectar → ler → fechar</p>
-        </div>
-        <div class="card-body compact">
-          <div class="progress-wrap">
-            <div style="display:flex;justify-content:space-between;margin-bottom:8px" class="small">
-              <span>Progresso</span>
-              <span id="progressText">0%</span>
-            </div>
-            <div class="progress-line"><div class="progress-fill" id="progressFill"></div></div>
-          </div>
-
-          <div class="step">
-            <h3>1. Conectar Phantom ou Solflare</h3>
-            <p class="muted small">Detecta provider injetado e solicita permissão da carteira escolhida.</p>
-          </div>
-          <div class="step">
-            <h3>2. Buscar token accounts</h3>
-            <p class="muted small">Consulta contas do Token Program e Token-2022 e filtra somente saldo zero.</p>
-          </div>
-          <div class="step">
-            <h3>3. Assinar e enviar</h3>
-            <p class="muted small">Monta transações reais com CloseAccount e envia em lotes.</p>
-          </div>
-
-          <div class="rpc-note" style="margin-top:12px">
-            <strong>RPC atual:</strong>
-            <div class="mono tiny" id="rpcLabel" style="margin-top:6px">—</div>
-          </div>
-        </div>
-      </aside>
+  <div class="wrap">
+    <div class="hero">
+      <h1>Recuperar rent na Solana</h1>
+      <p>
+        Esta versão foi ajustada para uso em navegador de wallet: você pode informar um <strong>RPC dedicado</strong>, conectar sua wallet e escanear contas SPL vazias para recuperar <strong>rent</strong>.
+      </p>
+      <p class="muted">
+        Importante: isso não devolve taxas antigas de transação. Só fecha contas vazias e devolve o depósito de rent dessas contas.
+      </p>
+    </div><div class="card">
+  <div class="grid grid-2">
+    <div>
+      <label for="rpcInput">RPC da Solana</label>
+      <input id="rpcInput" value="https://mainnet.helius-rpc.com/?api-key=COLE_SUA_CHAVE_AQUI" />
+      <div class="muted" style="margin-top:8px;">Troque por um RPC seu. Ex.: Helius, QuickNode, Alchemy, dRPC.</div>
     </div>
-
-    <div class="bottom">
-      <section class="card">
-        <div class="card-header">
-          <div class="search-row">
-            <div>
-              <h2>Contas elegíveis para fechamento</h2>
-              <p class="muted small">Só aparecem contas SPL token com saldo zero. O valor estimado é calculado a partir dos lamports presos em cada conta.</p>
-            </div>
-            <input id="searchInput" type="text" placeholder="Buscar por mint, programa ou endereço" />
-          </div>
-        </div>
-        <div class="card-body compact">
-          <div id="assetList"></div>
-        </div>
-      </section>
-
-      <aside>
-        <div class="card" style="margin-bottom:18px">
-          <div class="card-header">
-            <h2>Log</h2>
-          </div>
-          <div class="card-body compact">
-            <div class="info-row" id="statusLog">Aguardando conexão.</div>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <h2>Transações</h2>
-          </div>
-          <div class="card-body compact">
-            <div id="txList" class="tx-list"></div>
-          </div>
-        </div>
-      </aside>
+    <div>
+      <label>Compatibilidade</label>
+      <div class="muted" style="padding-top:12px;">Abra este site no navegador da Trust Wallet. Se a carteira não expuser provider Solana, use um navegador/extensão compatível.</div>
     </div>
   </div>
+</div>
 
-  <script type="module">
-    import {
-      Connection,
-      PublicKey,
-      Transaction,
-      clusterApiUrl,
-      LAMPORTS_PER_SOL
-    } from 'https://esm.sh/@solana/web3.js@1.98.4';
+<div class="card">
+  <div class="toolbar">
+    <button id="saveRpcBtn" class="small-btn secondary">Salvar RPC</button>
+    <button id="testRpcBtn" class="small-btn secondary">Testar RPC</button>
+    <button id="connectBtn">Conectar wallet</button>
+    <button id="scanBtn" class="secondary" disabled>Escanear contas vazias</button>
+    <button id="recoverBtn" disabled>Fechar contas selecionadas</button>
+    <span id="walletLabel" class="pill">Nenhuma wallet conectada</span>
+  </div>
+</div>
 
-    import {
-      TOKEN_PROGRAM_ID,
-      TOKEN_2022_PROGRAM_ID,
-      createCloseAccountInstruction
-    } from 'https://esm.sh/@solana/spl-token@0.4.14';
+<div id="messageBox" style="display:none;" class="card"></div>
 
-    const state = {
-      provider: null,
-      walletName: 'phantom',
-      network: 'mainnet-beta',
-      connection: null,
-      publicKey: null,
-      query: '',
-      accounts: [],
-      txs: [],
-      loading: false,
-      scanned: false,
-      closing: false,
-      connectBusy: false
-    };
+<div id="summary" style="display:none;" class="grid grid-3">
+  <div class="card">
+    <div class="muted">Contas vazias</div>
+    <div id="emptyCount" class="stat">0</div>
+  </div>
+  <div class="card">
+    <div class="muted">Rent estimado</div>
+    <div id="rentSol" class="stat">0 SOL</div>
+  </div>
+  <div class="card">
+    <div class="muted">Carteira</div>
+    <div id="walletShort" class="stat" style="font-size:20px;">-</div>
+  </div>
+</div>
 
-    const el = {
-      walletSelect: document.getElementById('walletSelect'),
-      networkSelect: document.getElementById('networkSelect'),
-      rpcInput: document.getElementById('rpcInput'),
-      connectBtn: document.getElementById('connectBtn'),
-      disconnectBtn: document.getElementById('disconnectBtn'),
-      scanBtn: document.getElementById('scanBtn'),
-      selectAllBtn: document.getElementById('selectAllBtn'),
-      clearSelectionBtn: document.getElementById('clearSelectionBtn'),
-      closeBtn: document.getElementById('closeBtn'),
-      walletState: document.getElementById('walletState'),
-      walletAddress: document.getElementById('walletAddress'),
-      eligibleCount: document.getElementById('eligibleCount'),
-      estimatedSol: document.getElementById('estimatedSol'),
-      searchInput: document.getElementById('searchInput'),
-      assetList: document.getElementById('assetList'),
-      statusLog: document.getElementById('statusLog'),
-      txList: document.getElementById('txList'),
-      progressFill: document.getElementById('progressFill'),
-      progressText: document.getElementById('progressText'),
-      successBox: document.getElementById('successBox'),
-      rpcLabel: document.getElementById('rpcLabel')
-    };
+<div id="accountsCard" class="card" style="display:none;">
+  <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px;">
+    <div>
+      <div style="font-size:18px; font-weight:700;">Contas de token vazias</div>
+      <div class="muted">Selecione as contas que deseja fechar para recuperar o rent.</div>
+    </div>
+    <label><input id="selectAll" type="checkbox" /> Selecionar tudo</label>
+  </div>
+  <div id="accountsList" class="grid"></div>
+</div>
 
-    function setLog(message) {
-      el.statusLog.textContent = message;
+  </div>  <script type="module">
+    import { Connection, PublicKey, Transaction, LAMPORTS_PER_SOL } from 'https://esm.sh/@solana/web3.js@1.98.4';
+    import { TOKEN_PROGRAM_ID, createCloseAccountInstruction } from 'https://esm.sh/@solana/spl-token@0.4.8';
+
+    const DEFAULT_RPC = 'https://mainnet.helius-rpc.com/?api-key=5ece2ede-ccf4-4e11-adc8-e29082609737';
+
+    let provider = null;
+    let walletPublicKey = null;
+    let emptyAccounts = [];
+    let connection = null;
+
+    const rpcInput = document.getElementById('rpcInput');
+    const saveRpcBtn = document.getElementById('saveRpcBtn');
+    const testRpcBtn = document.getElementById('testRpcBtn');
+    const connectBtn = document.getElementById('connectBtn');
+    const scanBtn = document.getElementById('scanBtn');
+    const recoverBtn = document.getElementById('recoverBtn');
+    const walletLabel = document.getElementById('walletLabel');
+    const messageBox = document.getElementById('messageBox');
+    const summary = document.getElementById('summary');
+    const emptyCount = document.getElementById('emptyCount');
+    const rentSol = document.getElementById('rentSol');
+    const walletShort = document.getElementById('walletShort');
+    const accountsCard = document.getElementById('accountsCard');
+    const accountsList = document.getElementById('accountsList');
+    const selectAll = document.getElementById('selectAll');
+
+    function bootRpc() {
+      const saved = localStorage.getItem('solana_custom_rpc') || DEFAULT_RPC;
+      rpcInput.value = saved;
+      connection = new Connection(saved, 'confirmed');
     }
 
-    function shortAddress(value) {
-      if (!value) return '—';
-      const s = String(value);
-      return s.length > 12 ? `${s.slice(0, 6)}…${s.slice(-6)}` : s;
-    }
-
-    function getRpcUrl() {
-      const custom = el.rpcInput.value.trim();
-      if (custom) return custom;
-      return clusterApiUrl(state.network);
-    }
-
-    function refreshConnection() {
-      const rpc = getRpcUrl();
-      state.connection = new Connection(rpc, 'confirmed');
-      el.rpcLabel.textContent = rpc;
-    }
-
-    function detectProvider(walletName) {
-      if (walletName === 'phantom') {
-        const provider = window.phantom?.solana || window.solana;
-        if (provider?.isPhantom) return provider;
-        return null;
+    function setConnectionFromInput() {
+      const rpc = rpcInput.value.trim();
+      if (!rpc.startsWith('http://') && !rpc.startsWith('https://')) {
+        throw new Error('Informe um RPC válido começando com http:// ou https://');
       }
+      localStorage.setItem('solana_custom_rpc', rpc);
+      connection = new Connection(rpc, 'confirmed');
+      return rpc;
+    }
 
-      if (walletName === 'solflare') {
-        const provider = window.solflare;
-        if (provider?.isSolflare) return provider;
-        return null;
-      }
+    function showMessage(text, type = 'ok') {
+      messageBox.style.display = 'block';
+      messageBox.className = type === 'error' ? 'card error' : type === 'warn' ? 'card warn' : 'card ok';
+      messageBox.textContent = text;
+    }
 
+    function clearMessage() {
+      messageBox.style.display = 'none';
+      messageBox.textContent = '';
+    }
+
+    function shortKey(value) {
+      return value.slice(0, 6) + '...' + value.slice(-6);
+    }
+
+    function detectProvider() {
+      if (window.trustwallet?.solana) return window.trustwallet.solana;
+      if (window.phantom?.solana?.isPhantom) return window.phantom.solana;
+      if (window.solflare?.isSolflare) return window.solflare;
+      if (window.backpack?.isBackpack) return window.backpack;
+      if (window.solana) return window.solana;
       return null;
     }
 
-    function getProgress() {
-      if (!state.publicKey) return 0;
-      if (!state.scanned) return 50;
-      return 100;
+    async function testRpc() {
+      clearMessage();
+      testRpcBtn.disabled = true;
+      testRpcBtn.textContent = 'Testando...';
+      try {
+        const rpc = setConnectionFromInput();
+        const version = await connection.getVersion();
+        showMessage('RPC OK. Versão do nó: ' + (version['solana-core'] || 'desconhecida') + ' | ' + rpc);
+      } catch (err) {
+        showMessage(err?.message || 'Falha ao testar o RPC.', 'error');
+      } finally {
+        testRpcBtn.disabled = false;
+        testRpcBtn.textContent = 'Testar RPC';
+      }
     }
 
-    function selectedAccounts() {
-      return state.accounts.filter((a) => a.selected);
+    async function connectWallet() {
+      clearMessage();
+      try {
+        setConnectionFromInput();
+      } catch (err) {
+        showMessage(err.message, 'error');
+        return;
+      }
+
+      provider = detectProvider();
+      if (!provider) {
+        showMessage('Nenhum provider Solana foi detectado. Abra no navegador da wallet ou em uma extensão compatível.', 'error');
+        return;
+      }
+
+      try {
+        const response = await provider.connect();
+        walletPublicKey = new PublicKey(response.publicKey?.toString?.() || provider.publicKey?.toString());
+        walletLabel.textContent = shortKey(walletPublicKey.toBase58());
+        scanBtn.disabled = false;
+        showMessage('Wallet conectada com sucesso.');
+      } catch (err) {
+        showMessage(err?.message || 'Não foi possível conectar a wallet.', 'error');
+      }
     }
 
-    function filteredAccounts() {
-      const q = state.query.trim().toLowerCase();
-      return state.accounts.filter((a) => {
-        if (!q) return true;
-        return [a.address, a.mint, a.programLabel]
-          .some((part) => String(part).toLowerCase().includes(q));
+    async function scanEmptyAccounts() {
+      clearMessage();
+      accountsList.innerHTML = '';
+      accountsCard.style.display = 'none';
+      summary.style.display = 'none';
+      recoverBtn.disabled = true;
+      emptyAccounts = [];
+
+      if (!walletPublicKey) {
+        showMessage('Conecte uma wallet primeiro.', 'error');
+        return;
+      }
+
+      scanBtn.disabled = true;
+      scanBtn.textContent = 'Escaneando...';
+
+      try {
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(walletPublicKey, { programId: TOKEN_PROGRAM_ID });
+
+        emptyAccounts = tokenAccounts.value
+          .map(({ pubkey, account }) => {
+            const parsed = account.data.parsed.info;
+            return {
+              address: pubkey.toBase58(),
+              mint: parsed.mint,
+              owner: parsed.owner,
+              amountRaw: parsed.tokenAmount.amount,
+              uiAmountString: parsed.tokenAmount.uiAmountString || '0',
+              lamports: account.lamports,
+            };
+          })
+          .filter((item) => item.amountRaw === '0');
+
+        const totalLamports = emptyAccounts.reduce((sum, item) => sum + item.lamports, 0);
+        const totalSol = totalLamports / LAMPORTS_PER_SOL;
+
+        emptyCount.textContent = String(emptyAccounts.length);
+        rentSol.textContent = totalSol.toFixed(6) + ' SOL';
+        walletShort.textContent = shortKey(walletPublicKey.toBase58());
+        summary.style.display = 'grid';
+        accountsCard.style.display = 'block';
+
+        if (!emptyAccounts.length) {
+          showMessage('Nenhuma conta SPL vazia foi encontrada para essa wallet.');
+          return;
+        }
+
+        renderAccounts();
+        recoverBtn.disabled = false;
+        showMessage('Escaneamento concluído.');
+      } catch (err) {
+        const msg = err?.message || 'Falha ao escanear contas.';
+        if (String(msg).includes('403')) {
+          showMessage('Seu RPC rejeitou a chamada com 403. Troque para um RPC dedicado com acesso por navegador e teste novamente.', 'error');
+        } else {
+          showMessage(msg, 'error');
+        }
+      } finally {
+        scanBtn.disabled = false;
+        scanBtn.textContent = 'Escanear contas vazias';
+      }
+    }
+
+    function renderAccounts() {
+      accountsList.innerHTML = '';
+      emptyAccounts.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'account';
+        row.innerHTML = `
+          <label style="display:flex; gap:10px; align-items:flex-start;">
+            <input type="checkbox" class="account-check" data-index="${index}" checked />
+            <span>
+              <div><strong>Conta:</strong> <code>${item.address}</code></div>
+              <div><strong>Mint:</strong> <code>${item.mint}</code></div>
+              <div class="muted">Saldo do token: ${item.uiAmountString} | Rent estimado: ${(item.lamports / LAMPORTS_PER_SOL).toFixed(6)} SOL</div>
+            </span>
+          </label>
+        `;
+        accountsList.appendChild(row);
       });
     }
 
-    function updateButtons() {
-      const hasWallet = !!state.publicKey;
-      const selected = selectedAccounts();
+    async function recoverRent() {
+      clearMessage();
+      if (!provider || !walletPublicKey) {
+        showMessage('Conecte uma wallet primeiro.', 'error');
+        return;
+      }
 
-      el.connectBtn.disabled = state.connectBusy || state.loading || state.closing;
-      el.disconnectBtn.disabled = !hasWallet || state.connectBusy || state.loading || state.closing;
-      el.scanBtn.disabled = !hasWallet || state.connectBusy || state.loading || state.closing;
-      el.selectAllBtn.disabled = !state.scanned || !state.accounts.length || state.closing;
-      el.clearSelectionBtn.disabled = !state.scanned || !state.accounts.length || state.closing;
-      el.closeBtn.disabled = !hasWallet || !state.scanned || !selected.length || state.loading || state.closing;
+      const selectedIndexes = Array.from(document.querySelectorAll('.account-check:checked')).map((el) => Number(el.dataset.index));
+      if (!selectedIndexes.length) {
+        showMessage('Selecione ao menos uma conta.', 'error');
+        return;
+      }
 
-      el.progressFill.style.width = `${getProgress()}%`;
-      el.progressText.textContent = `${getProgress()}%`;
+      recoverBtn.disabled = true;
+      recoverBtn.textContent = 'Enviando...';
 
-      el.connectBtn.textContent = state.connectBusy ? 'Conectando...' : 'Conectar carteira';
+      try {
+        const latestBlockhash = await connection.getLatestBlockhash('confirmed');
+        const tx = new Transaction({ feePayer: walletPublicKey, recentBlockhash: latestBlockhash.blockhash });
+
+        selectedIndexes.forEach((idx) => {
+          const item = emptyAccounts[idx];
+          tx.add(
+            createCloseAccountInstruction(
+              new PublicKey(item.address),
+              walletPublicKey,
+              walletPublicKey
+            )
+          );
+        });
+
+        const signed = await provider.signTransaction(tx);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        await connection.confirmTransaction({ signature, ...latestBlockhash }, 'confirmed');
+        showMessage('Transação confirmada. Assinatura: ' + signature);
+        await scanEmptyAccounts();
+      } catch (err) {
+        showMessage(err?.message || 'Não foi possível fechar as contas selecionadas.', 'error');
+      } finally {
+        recoverBtn.disabled = false;
+        recoverBtn.textContent = 'Fechar contas selecionadas';
+      }
     }
 
-    function renderTxs() {
-      el.txList.innerHTML = '';
+    saveRpcBtn.addEventListener('click', () => {
+      clearMessage();
+      try {
+        const rpc = setConnectionFromInput();
+        showMessage('RPC salvo com sucesso: ' + rpc);
+      } catch (err) {
+        showMessage(err.message, 'error');
+      }
+    });
 
-      if (!state.txs.length) {
-        const row = document.createElement('div')
+    testRpcBtn.addEventListener('click', testRpc);
+    connectBtn.addEventListener('click', connectWallet);
+    scanBtn.addEventListener('click', scanEmptyAccounts);
+    recoverBtn.addEventListener('click', recoverRent);
+    selectAll.addEventListener('change', () => {
+      document.querySelectorAll('.account-check').forEach((el) => { el.checked = selectAll.checked; });
+    });
+
+    bootRpc();
+  </script></body>
+  </html>
